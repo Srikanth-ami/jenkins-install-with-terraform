@@ -1,0 +1,117 @@
+# create security group for the ec2 instance
+resource "aws_security_group" "ec2_security_group" {
+  name        = "Custum-SG"
+  description = "allow access on ports 8080 and 22"
+
+  # allow access on port 8080
+  ingress {
+    description = "http proxy access"
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # allow access on port 22
+  ingress {
+    description = "ssh access"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = -1
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "jenkins server security group"
+  }
+}
+
+### Create IAM policy
+resource "aws_iam_policy" "example_policy" {
+  name        = "example_policy"
+  description = "Permissions for EC2"
+  policy      = jsonencode({
+    Version: "2012-10-17",
+    Statement: [
+        {
+            Action: "ec2:*",
+            Effect: "Allow",
+            Resource: "*"
+        }
+      ]
+    })
+}
+
+### Create IAM role
+resource "aws_iam_role" "example_role" {
+  name = "example_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = "examplerole"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
+### Attach IAM policy to IAM role
+resource "aws_iam_policy_attachment" "policy_attach" {
+  name       = "example_policy_attachment"
+  roles      = [aws_iam_role.example_role.name]
+  policy_arn = aws_iam_policy.example_policy.arn
+}
+
+### Create instance profile using role
+resource "aws_iam_instance_profile" "example_profile" {
+  name = "example_profile"
+  role = aws_iam_role.example_role.name
+}
+
+resource "aws_instance" "jenkins" {
+  ami                    = "ami-049a62eb90480f276"
+  instance_type          = "t2.micro"
+  key_name               = "custum"
+   iam_instance_profile = aws_iam_instance_profile.example_profile.name
+  vpc_security_group_ids = [aws_security_group.ec2_security_group.id]
+  #associate_public_ip_address = false
+
+  tags = {
+    Name = "jenkins-instance"
+  }
+  user_data = <<-EOF
+    #!/bin/bash
+    # Installing Java
+    sudo yum update -y
+    sudo amazon-linux-extras install java-openjdk11 -y
+    java --version
+
+    # Installing wget and necessary packages for HTTP and HTTPS
+    sudo yum install wget -y
+    sudo yum install ca-certificates -y
+    sudo yum install nss -y
+
+    # Downloading Jenkins repository file and importing the key
+    sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat/jenkins.repo
+    sudo rpm --import https://pkg.jenkins.io/redhat/jenkins.io-2023.key
+    sudo yum upgrade -y
+
+    # Installing Jenkins
+    sudo yum install jenkins -y
+    sudo systemctl start jenkins
+    sudo systemctl enable jenkins
+  EOF
+}

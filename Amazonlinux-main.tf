@@ -1,6 +1,6 @@
 # create security group for the ec2 instance
 resource "aws_security_group" "ec2_security_group" {
-  name        = "ec2 security group"
+  name        = "ec2 security group"               #add existing SG Name
   description = "allow access on ports 8080 and 22"
 
   # allow access on port 8080
@@ -34,9 +34,9 @@ resource "aws_security_group" "ec2_security_group" {
 }
 
 resource "aws_instance" "jenkins" {
-  ami                    = "ami-078efad6f7ec18b8a"
+  ami                    = "ami-049a62eb90480f276"
   instance_type          = "t2.micro"
-  key_name               = "MUMBAI"
+  key_name               = "MUMBAI"                #add existing key name
   vpc_security_group_ids = [aws_security_group.ec2_security_group.id]
   #associate_public_ip_address = false
 

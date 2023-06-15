@@ -1,0 +1,21 @@
+resource "aws_db_instance" "rds" {
+  identifier                = "my-rds-instance"
+  engine                    = "mysql"
+  engine_version            = "5.7"
+  instance_class            = "db.t2.micro"
+  allocated_storage         = 20
+  storage_type              = "gp2"
+  username                  = "admin"
+  password                  = "mypassword"
+  publicly_accessible       = false
+  multi_az                  = false
+  backup_retention_period   = 7
+  deletion_protection       = false
+
+  vpc_security_group_ids    = ["sg-02ea7484b5e8ae0a7"]  # Replace with your desired security group ID
+
+  tags = {
+    Name = "MyRDSInstance"
+  }
+}
+

@@ -41,3 +41,22 @@ resource "aws_lb_listener" "listener" {
   }
 }
 
+resource "aws_instance" "target_instance_1" {
+  ami           = "ami-057752b3f1d6c4d6c"  # Replace with your desired AMI ID
+  instance_type = "t2.micro"
+  subnet_id     = "subnet-039ae6c6d50a21d1b"  # Replace with the subnet ID where the instance should be launched
+
+vpc_security_group_ids = ["sg-023285e9db8473da6"]
+key_name = "custum"
+  # Add any additional configuration for your EC2 instance, such as user data, security groups, etc.
+}
+
+resource "aws_instance" "target_instance_2" {
+  ami           = "ami-03cb1380eec7cc118"  # Replace with your desired AMI ID
+  instance_type = "t2.micro"
+  subnet_id     = "subnet-0eda040e1e8a2f772"  # Replace with the subnet ID where the instance should be launched
+vpc_security_group_ids = ["sg-023285e9db8473da6"]
+key_name = "custum"
+  # Add any additional configuration for your EC2 instance, such as user data, security groups, etc.
+}
+

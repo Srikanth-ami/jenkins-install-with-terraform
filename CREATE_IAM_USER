@@ -1,0 +1,32 @@
+root@TTNPL:~/TERRAFORM/IAMUSERT# cat iamuser.tf       #################MAIN FILE
+provider "aws" {
+  region = var.aws_region
+}
+
+resource "aws_iam_user" "my_user" {
+  name = var.iam_username
+}
+
+resource "aws_iam_user_policy_attachment" "my_user_admin_policy" {
+  user       = aws_iam_user.my_user.name
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+}
+
+-------------------------------------------------------------
+
+root@TTNPL:~/TERRAFORM/IAMUSERT# cat variables.tf        #################VARIABLE FILE
+variable "aws_region" {
+  description = "The AWS region to deploy the resources."
+  type        = string
+  default     = "us-west-2"
+}
+
+variable "iam_username" {
+  description = "The desired IAM username for the user."
+  type        = string
+}
+
+----------------------------------------------------------------
+root@TTNPL:~/TERRAFORM/IAMUSERT# cat terraform.tfvars         ################### CATE A FILE NAME terraform.tfvars 
+iam_username = "my-user"    #####################3with your desired IAM username.
+

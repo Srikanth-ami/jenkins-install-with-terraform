@@ -1,3 +1,8 @@
+provider "aws" {
+  region      = "ap-south-1"
+  access_key  = "AKIAVIM2HAQIZPJPZD5D"
+  secret_key  = "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"
+}
 #Resource: createing vpc  create aws vpc using terraform
 
 resource "aws_vpc" "vpc" {
@@ -102,7 +107,7 @@ resource "aws_route_table_association" "as_2"{
 }
 
 resource "aws_instance" "server" {
-ami     = "ami-022e1a32d3f742bd8"
+ami     = "ami-0f5ee92e2d63afc18"
 instance_type = "t2.small"
 subnet_id = aws_subnet.pub.id
 vpc_security_group_ids = [aws_security_group.SG.id]
